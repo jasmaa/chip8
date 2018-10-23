@@ -9,7 +9,7 @@ void chip8::init() {
 	// init registers and memory
 
 	// read file into memory
-	fstream filestr("roms/ibm.ch8", fstream::in | fstream::binary);
+	fstream filestr("roms/Space Invaders [David Winter] (alt).ch8", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {

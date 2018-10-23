@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <iomanip>
+#include <SDL.h>
 using namespace std;
 
 #include "chip8.h"
@@ -33,24 +34,39 @@ void printScrn() {
 	}
 }
 
-int main() {
+int main(int argc, char* args[]) {
+
+	int width = 1028;
+	int height = 514;
+	int ratio = width / 64;
+
+	SDL_Window * window;
+	SDL_Renderer * renderer;
+	SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+	
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	// init
 	cpu.init();
 
-	// game loop
-	// derp testing
 	cout << "START\n---\n";
 	cout << hex;
-	while (true) {
-		cpu.emulateCycle();
-		//printState();
-		printScrn();
-	}
-	cout << "END";
 
-	int n;
-	cin >> n;
+	while (true) {
+
+		cpu.emulateCycle();
+		printState();
+
+		// render
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (cpu.gfx[i / ratio][j / ratio] == 1) {
+					SDL_RenderDrawPoint(renderer, j, i);
+				}
+			}
+		}
+		SDL_RenderPresent(renderer);
+	}
 
 	return 0;
 }
