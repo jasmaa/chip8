@@ -3,7 +3,16 @@
 using namespace std;
 
 class chip8 {
-	unsigned char memory[4096];			// memory
+
+public:
+	unsigned char memory[4096] = {
+		0x61,
+		0x0F,
+		0x62,
+		0x02,
+		0x81,
+		0x01,
+	};
 	unsigned short opcode;				// opcode
 	unsigned short pc;					// program counter
 	unsigned char V[16];				// general registers and flag register
@@ -16,7 +25,6 @@ class chip8 {
 	unsigned char sound_timer;			// sound timer
 	unsigned char key[16];				// hex keypad
 
-public:
 	void init();
 	void emulateCycle();
 };
