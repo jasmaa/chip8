@@ -31,7 +31,11 @@ void chip8::emulateCycle() {
 	// decode and execute opcode
 	if (opcode == 0x00E0) {
 		// clear screen
-		cout << "heyo";
+		for (int i = 0; i < 32; i++) {
+			for (int j = 0; j < 64; j++) {
+				gfx[i][j] = 0;
+			}
+		}
 	}
 	// return from subroutine
 	else if (opcode == 0x00EE) {
@@ -162,7 +166,24 @@ void chip8::emulateCycle() {
 	}
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
-		// do draw here
+		int row = V[0xF & (opcode >> 4)];
+		int col = V[0xF & (opcode >> 8)];
+		int height = 0xF & opcode;
+		int mem = I;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < 8; j++) {
+				// set VF on set to unset
+				if (gfx[row + i][col + j] == 1 && (memory[mem] >> (7-j)) & 0x1 == 0) {
+					V[0xF] = 1;
+				}
+				else {
+					V[0xF] = 0;
+				}
+
+				gfx[row + i][col + j] ^= (memory[mem] >> (7 - j)) & 0x1;
+			}
+			mem++;
+		}
 	}
 	// skip if key is in VX
 	else if (unsigned(opcode & 0xF0FF) == 0xE09E) {
@@ -185,11 +206,11 @@ void chip8::emulateCycle() {
 		sound_timer = V[0xF & (opcode >> 8)];
 	}
 	// I += VX
-	else if (unsigned(opcode & 0xF0FF) == 0xF015) {
+	else if (unsigned(opcode & 0xF0FF) == 0xF01E) {
 		I += V[0xF & (opcode >> 8)];
 	}
 	// I = sprite address in VX
-	else if (unsigned(opcode & 0xF0FF) == 0xF015) {
+	else if (unsigned(opcode & 0xF0FF) == 0xF029) {
 		// do sprite stuff here
 	}
 	

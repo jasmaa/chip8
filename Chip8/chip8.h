@@ -12,7 +12,7 @@ public:
 	unsigned short I;					// address register
 	stack <unsigned char> call_stack;	// call stack
 
-	unsigned char gfx[64 * 32];			// graphics array
+	unsigned char gfx[32][64];			// graphics array
 
 	unsigned char delay_timer;			// delay timer
 	unsigned char sound_timer;			// sound timer
