@@ -14,17 +14,19 @@ int main() {
 	// game loop
 	// derp testing
 	cout << "START\n---\n";
+	cout << hex;
 	while (true) {
 		cpu.emulateCycle();
 
 		// print state
-		cout << "opcode: " << std::hex << cpu.opcode << "\n";
+		cout << "pc: " << cpu.pc << "\n";
+		cout << "opcode: " << cpu.opcode << "\n";
 		cout << "V: ";
 		for (int i = 0; i < 16; i++) {
-			cout << std::hex << unsigned(cpu.V[i]) << " ";
+			cout << unsigned(cpu.V[i]) << " ";
 		}
 		cout << "\n";
-		cout << "pc: " << cpu.pc << "\n";
+		cout << "I: " << cpu.I << "\n";
 		cout << "---\n";
 
 		if (cpu.opcode == 0) {
@@ -32,7 +34,7 @@ int main() {
 		}
 	}
 	cout << "END";
-	
+
 	int n;
 	cin >> n;
 

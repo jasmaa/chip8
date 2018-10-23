@@ -5,14 +5,7 @@ using namespace std;
 class chip8 {
 
 public:
-	unsigned char memory[4096] = {
-		0x61,
-		0x05,
-		0x62,
-		0x02,
-		0x81,
-		0x21,
-	};
+	unsigned char memory[4096];
 	unsigned short opcode;				// opcode
 	unsigned short pc;					// program counter
 	unsigned char V[16];				// general registers and flag register

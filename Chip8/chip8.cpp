@@ -1,14 +1,27 @@
 #include "chip8.h"
 
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 using namespace std;
 
 void chip8::init() {
 	// init registers and memory
 
+	// read file into memory
+	fstream filestr("roms/ibm.ch8", fstream::in | fstream::binary);
+	unsigned char n;
+	int i = 0;
+	while (!filestr.eof()) {
+		n = filestr.get();
+		memory[i + 512] = n;
+		i++;
+	}
+	filestr.close();
+
 	// TEST
 	I = 0;
-	pc = 0;
+	pc = 0x200;
 }
 
 void chip8::emulateCycle() {
@@ -32,12 +45,13 @@ void chip8::emulateCycle() {
 	// jump to NNN
 	else if (unsigned(opcode & 0xF000) == 0x1000) {
 		pc = 0x0FFF & opcode;
-		
+		pc -= 2;
 	}
 	// subroutine to NNN
 	else if (unsigned(opcode & 0xF000) == 0x2000) {
 		call_stack.push(pc);
 		pc = 0x0FFF & opcode;
+		pc -= 2;
 	}
 	// skip on VX == NN
 	else if (unsigned(opcode & 0xF000) == 0x3000) {
@@ -140,6 +154,7 @@ void chip8::emulateCycle() {
 	// jump to NNN + V0
 	else if (unsigned(opcode & 0xF000) == 0xB000) {
 		pc = 0x0FFF & opcode + V[0];
+		pc -= 2;
 	}
 	// set VX to rand & NN
 	else if (unsigned(opcode & 0xF000) == 0xC000) {
