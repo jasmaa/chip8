@@ -7,11 +7,11 @@ class chip8 {
 public:
 	unsigned char memory[4096] = {
 		0x61,
-		0x0F,
+		0x05,
 		0x62,
 		0x02,
 		0x81,
-		0x01,
+		0x21,
 	};
 	unsigned short opcode;				// opcode
 	unsigned short pc;					// program counter
