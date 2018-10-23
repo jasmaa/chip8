@@ -34,39 +34,54 @@ void printScrn() {
 	}
 }
 
+int width = 1028;
+int height = 514;
+int ratio = width / 64;
+
+SDL_Window * window;
+SDL_Renderer * renderer;
+SDL_Event e;
+
+bool quit = false;
+
 int main(int argc, char* args[]) {
 
-	int width = 1028;
-	int height = 514;
-	int ratio = width / 64;
-
-	SDL_Window * window;
-	SDL_Renderer * renderer;
-	SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
-	
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
 	// init
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	cpu.init();
 
 	cout << "START\n---\n";
 	cout << hex;
 
-	while (true) {
+	while (!quit) {
+		while (SDL_PollEvent(&e) != 0) {
+			cpu.emulateCycle();
 
-		cpu.emulateCycle();
-		printState();
+			// quit on exit
+			if (e.type == SDL_QUIT) {
+				quit = true;
+			}
 
-		// render
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				if (cpu.gfx[i / ratio][j / ratio] == 1) {
-					SDL_RenderDrawPoint(renderer, j, i);
+			// render
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					if (cpu.gfx[i / ratio][j / ratio] == 1) {
+						SDL_RenderDrawPoint(renderer, j, i);
+					}
 				}
 			}
+			SDL_RenderPresent(renderer);
 		}
-		SDL_RenderPresent(renderer);
 	}
+
+	// Free resources
+	SDL_DestroyWindow(window);
+	window = NULL;
+	SDL_DestroyRenderer(renderer);
+	renderer = NULL;
+	SDL_Quit();
 
 	return 0;
 }
