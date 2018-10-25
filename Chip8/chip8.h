@@ -10,7 +10,7 @@ public:
 	unsigned short pc;					// program counter
 	unsigned char V[16];				// general registers and flag register
 	unsigned short I;					// address register
-	stack <unsigned char> call_stack;	// call stack
+	stack <unsigned short> call_stack;	// call stack
 
 	unsigned char gfx[32][64];			// graphics array
 
