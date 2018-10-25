@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 #include <iomanip>
-//#include <SDL.h>
+#include <SDL.h>
 using namespace std;
 
 #include "chip8.h"
@@ -34,6 +34,7 @@ void printScrn() {
 	}
 }
 
+/*
 int main() {
 
 	cpu.init();
@@ -48,14 +49,16 @@ int main() {
 	
 	return 0;
 }
+*/
 
-/*
+
 int width = 256;
 int height = 128;
 int ratio = width / 64;
 
 SDL_Window * window;
 SDL_Renderer * renderer;
+SDL_Texture * texture;
 SDL_Event e;
 
 bool quit = false;
@@ -64,8 +67,12 @@ int main(int argc, char* args[]) {
 
 	// init
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+	window = SDL_CreateWindow("Chip 8 Emualtor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+	renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
+
+	Uint32 * pixels = new Uint32[width * height];
 
 	cpu.init();
 
@@ -73,34 +80,39 @@ int main(int argc, char* args[]) {
 	cout << hex;
 
 	while (!quit) {
-		while (SDL_PollEvent(&e) != 0) {
-			cpu.emulateCycle();
 
-			// quit on exit
-			if (e.type == SDL_QUIT) {
-				quit = true;
-			}
+		cpu.emulateCycle();
 
-			// render
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					if (cpu.gfx[i][j] == 1) {
-						SDL_Rect region;
-						region.x = j * ratio;
-						region.y = i * ratio;
-						region.w = ratio;
-						region.h = ratio;
-						SDL_RenderFillRect(renderer, &region);
-					}
+		// event detection
+		SDL_PollEvent(&e);
+		switch (e.type) {
+		case SDL_QUIT:
+			quit = true;
+			break;
+		}
+
+		// copy pixels
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				if (cpu.gfx[j / ratio][i / ratio] == 0) {
+					pixels[i + width * j] = 0;
+				}
+				else {
+					pixels[i + width * j] = 0xFFFFFF;
 				}
 			}
-			
-			//SDL_RenderClear(renderer);
-			SDL_RenderPresent(renderer);
 		}
+
+		SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(Uint32));
+
+		// render
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_RenderPresent(renderer);
 	}
 
 	// Free resources
+	delete[] pixels;
 	SDL_DestroyWindow(window);
 	window = NULL;
 	SDL_DestroyRenderer(renderer);
@@ -109,4 +121,3 @@ int main(int argc, char* args[]) {
 
 	return 0;
 }
-*/

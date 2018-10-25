@@ -5,6 +5,9 @@ using namespace std;
 class chip8 {
 
 public:
+
+	bool can_draw;
+
 	unsigned char memory[4096];
 	unsigned short opcode;				// opcode
 	unsigned short pc;					// program counter

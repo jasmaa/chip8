@@ -9,7 +9,7 @@ void chip8::init() {
 	// init registers and memory
 
 	// read file into memory
-	fstream filestr("roms/pong.ch8", fstream::in | fstream::binary);
+	fstream filestr("roms/ibm.ch8", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -122,6 +122,9 @@ void chip8::init() {
 }
 
 void chip8::emulateCycle() {
+
+	can_draw = false;
+
 	// fetch opcode
 	opcode = unsigned(memory[pc] << 8 | memory[pc + 1]);
 
@@ -263,6 +266,9 @@ void chip8::emulateCycle() {
 	}
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
+
+		can_draw = true;
+
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
 		int height = 0xF & opcode;
