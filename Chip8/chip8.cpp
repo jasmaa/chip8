@@ -9,7 +9,7 @@ void chip8::init() {
 	// init registers and memory
 
 	// read file into memory
-	fstream filestr("roms/ibm.ch8", fstream::in | fstream::binary);
+	fstream filestr("roms/Tank.ch8", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -122,8 +122,6 @@ void chip8::init() {
 }
 
 void chip8::emulateCycle() {
-
-	can_draw = false;
 
 	// fetch opcode
 	opcode = unsigned(memory[pc] << 8 | memory[pc + 1]);
@@ -266,9 +264,6 @@ void chip8::emulateCycle() {
 	}
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
-
-		can_draw = true;
-
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
 		int height = 0xF & opcode;
@@ -283,7 +278,9 @@ void chip8::emulateCycle() {
 					V[0xF] = 0;
 				}
 
-				gfx[row + i][col + j] ^= (memory[mem] >> (7 - j)) & 0x1;
+				if (row + i < 64 && col + j < 32) {
+					gfx[row + i][col + j] ^= (memory[mem] >> (7 - j)) & 0x1;
+				}
 			}
 			mem++;
 		}
@@ -295,10 +292,20 @@ void chip8::emulateCycle() {
 		}
 	}
 	// skip if key is not in VX
-	else if (unsigned(opcode & 0xF0FF) == 0xF00A) {
+	else if (unsigned(opcode & 0xF0FF) == 0xE0A1) {
 		if (key[V[0xF & (opcode >> 8)]] == 0) {
 			pc += 2;
 		}
+	}
+	// set VX = delay timer
+	else if (unsigned(opcode & 0xF0FF) == 0xF007) {
+		V[0xF & (opcode >> 8)] = delay_timer;
+	}
+	// wait key and store in VX
+	else if (unsigned(opcode & 0xF0FF) == 0xF00A) {
+
+		// wait key
+	
 	}
 	// set delay timer to VX
 	else if (unsigned(opcode & 0xF0FF) == 0xF015) {
@@ -338,7 +345,11 @@ void chip8::emulateCycle() {
 			V[i] = memory[I + i];
 		}
 	}
-	
+	else {
+		cout << opcode;
+		int n;
+		cin >> n;
+	}
 	// move pc
 	pc += 2;
 }
