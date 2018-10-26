@@ -9,7 +9,7 @@ void chip8::init() {
 	// init registers and memory
 
 	// read file into memory
-	fstream filestr("roms/Tank.ch8", fstream::in | fstream::binary);
+	fstream filestr("roms/BLITZ", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
