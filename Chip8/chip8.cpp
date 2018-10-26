@@ -157,13 +157,13 @@ void chip8::emulateCycle() {
 	}
 	// skip on VX == NN
 	else if (unsigned(opcode & 0xF000) == 0x3000) {
-		if (V[0xF & (opcode >> 12)] == 0xFF & opcode) {
+		if (V[0xF & (opcode >> 12)] == unsigned(0xFF & opcode)) {
 			pc += 2;
 		}
 	}
 	// skip on VX != NN
 	else if (unsigned(opcode & 0xF000) == 0x4000) {
-		if (V[0xF & (opcode >> 12)] != 0xFF & opcode) {
+		if (V[0xF & (opcode >> 12)] != unsigned(0xFF & opcode)) {
 			pc += 2;
 		}
 	}
@@ -278,7 +278,7 @@ void chip8::emulateCycle() {
 					V[0xF] = 0;
 				}
 
-				if (row + i < 64 && col + j < 32) {
+				if (row + i < 32 && col + j < 64) {
 					gfx[row + i][col + j] ^= (memory[mem] >> (7 - j)) & 0x1;
 				}
 			}
@@ -352,4 +352,12 @@ void chip8::emulateCycle() {
 	}
 	// move pc
 	pc += 2;
+
+	//temp
+	if (delay_timer > 0) {
+		delay_timer--;
+	}
+	if (sound_timer > 0) {
+		sound_timer--;
+	}
 }

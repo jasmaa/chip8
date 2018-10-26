@@ -17,6 +17,8 @@ void printState() {
 	}
 	cout << "\n";
 	cout << "I: " << cpu.I << "\n";
+	cout << "delay: " << unsigned(cpu.delay_timer) << "\n";
+	cout << "sound: " << unsigned(cpu.sound_timer) << "\n";
 	cout << "---\n";
 }
 
@@ -197,11 +199,8 @@ int main(int argc, char* args[]) {
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
-
-		/*
-		int n;
-		cin >> n;
-		*/
+		
+		//printState();
 	}
 
 	// Free resources
