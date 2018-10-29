@@ -70,10 +70,7 @@ int main(int argc, char* args[]) {
 
 	while (!quit) {
 		cpu.emulateCycle();
-		printState();
-
-		int n;
-		cin >> n;
+		//printState();
 
 		// key detection
 		SDL_PollEvent(&e);

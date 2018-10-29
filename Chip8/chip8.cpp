@@ -10,7 +10,7 @@ void chip8::init() {
 
 	
 	// read file into memory
-	fstream filestr("roms/_TEST", fstream::in | fstream::binary);
+	fstream filestr("roms/PONG", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -240,7 +240,7 @@ void chip8::emulateCycle() {
 		V[0xF & (opcode >> 8)] = 0xFF & s;
 	}
 	// V <<= 1
-	else if (unsigned(opcode & 0xF00F) == 0x8006) {
+	else if (unsigned(opcode & 0xF00F) == 0x800E) {
 		V[0xF] = (V[0xF & (opcode >> 8)] >> 7) & 0x1;
 		V[0xF & (opcode >> 8)] <<= 1;
 	}
@@ -334,14 +334,14 @@ void chip8::emulateCycle() {
 	}
 	// reg dump
 	else if (unsigned(opcode & 0xF0FF) == 0xF055) {
-		int num = V[0xF & (opcode >> 8)];
+		int num = 0xF & (opcode >> 8);
 		for (int i = 0; i <= num; i++) {
 			memory[(I + i) % 4096] = V[i];
 		}
 	}
 	// reg load
 	else if (unsigned(opcode & 0xF0FF) == 0xF065) {
-		int num = V[0xF & (opcode >> 8)];
+		int num = 0xF & (opcode >> 8);
 		for (int i = 0; i <= num; i++) {
 			V[i] = memory[(I + i) % 4096];
 		}
