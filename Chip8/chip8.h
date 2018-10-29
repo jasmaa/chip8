@@ -18,7 +18,8 @@ public:
 	unsigned char key[16];				// hex keypad
 	unsigned char gfx[32][64];			// graphics array
 	bool hasDraw;
+	bool keyPressed;
 
-	void init();
+	void init(string fname);
 	void emulateCycle();
 };

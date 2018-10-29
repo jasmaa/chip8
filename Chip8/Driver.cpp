@@ -7,8 +7,8 @@ using namespace std;
 
 chip8 cpu;
 
-int width = 1028;
-int height = 512;
+int width = 512;
+int height = 256;
 int ratio = width / 64;
 
 SDL_Window * window;
@@ -20,22 +20,27 @@ bool quit = false;
 
 int main(int argc, char* args[]) {
 
+	if (argc != 2) {
+		return 0;
+	}
+
 	// init
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+	window = SDL_CreateWindow("Chip 8 Emulator - v0.1.0", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
 
 	Uint32 * pixels = new Uint32[width * height];
 
-	cpu.init();
+	// load rom and init cpu
+	cpu.init(args[1]);
 
-
+	// game loop
 	while (!quit) {
-		cpu.emulateCycle();
 
 		// key detection
+		cpu.keyPressed = false;
 		SDL_PollEvent(&e);
 		switch (e.type) {
 			case SDL_QUIT:
@@ -96,6 +101,7 @@ int main(int argc, char* args[]) {
 				break;
 
 			case SDL_KEYDOWN:
+				cpu.keyPressed = true;
 				switch (e.key.keysym.sym) {
 					case SDLK_1:
 						cpu.key[0x1] = 1;
@@ -149,6 +155,9 @@ int main(int argc, char* args[]) {
 				break;
 		}
 
+		cpu.emulateCycle();
+
+		// render if draw called
 		if (cpu.hasDraw) {
 			// copy pixels
 			for (int i = 0; i < width; i++) {

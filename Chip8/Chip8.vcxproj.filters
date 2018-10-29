@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="roms">
-      <UniqueIdentifier>{05a96bb5-36ce-487d-94dc-52668ddc9abf}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chip8.h">
@@ -29,10 +26,5 @@
     <ClCompile Include="chip8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="roms\pong.ch8">
-      <Filter>roms</Filter>
-    </None>
   </ItemGroup>
 </Project>

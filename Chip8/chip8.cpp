@@ -1,16 +1,15 @@
-#include "chip8.h"
 #include <thread>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
 using namespace std;
 
-void chip8::init() {
-	// init registers and memory
+#include "chip8.h"
 
-	
+void chip8::init(string fname) {
+
 	// read file into memory
-	fstream filestr("roms/PONG2", fstream::in | fstream::binary);
+	fstream filestr(fname, fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -310,7 +309,9 @@ void chip8::emulateCycle() {
 	// wait key and store in VX
 	else if (unsigned(opcode & 0xF0FF) == 0xF00A) {
 
-		// wait key
+		if (!keyPressed) {
+			pc -= 2;
+		}
 	
 	}
 	// set delay timer to VX
