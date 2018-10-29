@@ -1,6 +1,6 @@
 #include "chip8.h"
-
-#include <iostream>
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 using namespace std;
@@ -10,7 +10,7 @@ void chip8::init() {
 
 	
 	// read file into memory
-	fstream filestr("roms/PONG", fstream::in | fstream::binary);
+	fstream filestr("roms/PONG2", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -123,6 +123,8 @@ void chip8::init() {
 }
 
 void chip8::emulateCycle() {
+
+	hasDraw = false;
 
 	// fetch opcode
 	opcode = unsigned(memory[pc] << 8 | memory[pc + 1]);
@@ -265,6 +267,9 @@ void chip8::emulateCycle() {
 	}
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
+
+		hasDraw = true;
+
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
 		int height = 0xF & opcode;
@@ -346,19 +351,20 @@ void chip8::emulateCycle() {
 			V[i] = memory[(I + i) % 4096];
 		}
 	}
-	else {
-		cout << opcode;
-		int n;
-		cin >> n;
-	}
+	
 	// move pc
 	pc += 2;
 
-	//temp
+	// move timers
 	if (delay_timer > 0) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		delay_timer--;
 	}
 	if (sound_timer > 0) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		sound_timer--;
 	}
+
+	// default wait time
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }

@@ -7,40 +7,6 @@ using namespace std;
 
 chip8 cpu;
 
-void printState() {
-	// print state
-	cout << "pc after exec: " << cpu.pc << "\n";
-	cout << "opcode: " << cpu.opcode << "\n";
-	cout << "V: ";
-	for (int i = 0; i < 16; i++) {
-		cout << unsigned(cpu.V[i]) << " ";
-	}
-	cout << "\n";
-	cout << "mem: ";
-	for (int i = 0; i < 16; i++) {
-		cout << unsigned(cpu.memory[0x200 + i]) << " ";
-	}
-	cout << "\n";
-	cout << "I: " << cpu.I << "\n";
-	cout << "delay: " << unsigned(cpu.delay_timer) << "\n";
-	cout << "sound: " << unsigned(cpu.sound_timer) << "\n";
-	cout << "---\n";
-}
-
-void printScrn() {
-	for (int i = 0; i < 32; i++) {
-		for (int j = 0; j < 64; j++) {
-			if (cpu.gfx[i][j] == 0) {
-				cout << "0";
-			}
-			else {
-				cout << "1";
-			}
-		}
-		cout << "\n";
-	}
-}
-
 int width = 1028;
 int height = 512;
 int ratio = width / 64;
@@ -65,12 +31,9 @@ int main(int argc, char* args[]) {
 
 	cpu.init();
 
-	cout << "START\n---\n";
-	cout << hex;
 
 	while (!quit) {
 		cpu.emulateCycle();
-		//printState();
 
 		// key detection
 		SDL_PollEvent(&e);
@@ -186,26 +149,26 @@ int main(int argc, char* args[]) {
 				break;
 		}
 
-		// copy pixels
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				if (cpu.gfx[j / ratio][i / ratio] == 0) {
-					pixels[i + width * j] = 0;
-				}
-				else {
-					pixels[i + width * j] = 0xFFFFFF;
+		if (cpu.hasDraw) {
+			// copy pixels
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					if (cpu.gfx[j / ratio][i / ratio] == 0) {
+						pixels[i + width * j] = 0;
+					}
+					else {
+						pixels[i + width * j] = 0xFFFFFF;
+					}
 				}
 			}
+
+			SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(Uint32));
+
+			// render
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
+			SDL_RenderPresent(renderer);
 		}
-
-		SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(Uint32));
-
-		// render
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_RenderPresent(renderer);
-		
-		//printState();
 	}
 
 	// Free resources
