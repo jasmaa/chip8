@@ -16,6 +16,11 @@ void printState() {
 		cout << unsigned(cpu.V[i]) << " ";
 	}
 	cout << "\n";
+	cout << "mem: ";
+	for (int i = 0; i < 16; i++) {
+		cout << unsigned(cpu.memory[0x200 + i]) << " ";
+	}
+	cout << "\n";
 	cout << "I: " << cpu.I << "\n";
 	cout << "delay: " << unsigned(cpu.delay_timer) << "\n";
 	cout << "sound: " << unsigned(cpu.sound_timer) << "\n";
@@ -51,7 +56,7 @@ int main(int argc, char* args[]) {
 
 	// init
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("Chip 8 Emualtor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+	window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
@@ -65,7 +70,10 @@ int main(int argc, char* args[]) {
 
 	while (!quit) {
 		cpu.emulateCycle();
-		//printState();
+		printState();
+
+		int n;
+		cin >> n;
 
 		// key detection
 		SDL_PollEvent(&e);

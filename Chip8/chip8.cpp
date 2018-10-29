@@ -8,8 +8,9 @@ using namespace std;
 void chip8::init() {
 	// init registers and memory
 
+	
 	// read file into memory
-	fstream filestr("roms/BLITZ", fstream::in | fstream::binary);
+	fstream filestr("roms/_TEST", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
 	while (!filestr.eof()) {
@@ -18,7 +19,7 @@ void chip8::init() {
 		i++;
 	}
 	filestr.close();
-
+	
 	pc = 0x200;
 
 	// set font for characters starting at 00
@@ -157,13 +158,13 @@ void chip8::emulateCycle() {
 	}
 	// skip on VX == NN
 	else if (unsigned(opcode & 0xF000) == 0x3000) {
-		if (V[0xF & (opcode >> 12)] == unsigned(0xFF & opcode)) {
+		if (V[0xF & (opcode >> 8)] == unsigned(0xFF & opcode)) {
 			pc += 2;
 		}
 	}
 	// skip on VX != NN
 	else if (unsigned(opcode & 0xF000) == 0x4000) {
-		if (V[0xF & (opcode >> 12)] != unsigned(0xFF & opcode)) {
+		if (V[0xF & (opcode >> 8)] != unsigned(0xFF & opcode)) {
 			pc += 2;
 		}
 	}
@@ -226,7 +227,7 @@ void chip8::emulateCycle() {
 		V[0xF] = V[0xF & (opcode >> 8)] & 0x1;	// get lsb
 		V[0xF & (opcode >> 8)] >>= 1;
 	}
-	// set VX -= VY
+	// set VX = VY - VX
 	else if (unsigned(opcode & 0xF00F) == 0x8007) {
 		unsigned short s = V[0xF & (opcode >> 4)] - V[0xF & (opcode >> 8)];
 		// set carry
@@ -240,7 +241,7 @@ void chip8::emulateCycle() {
 	}
 	// V <<= 1
 	else if (unsigned(opcode & 0xF00F) == 0x8006) {
-		V[0xF] = V[0xF & (opcode >> 8)] >> 7;
+		V[0xF] = (V[0xF & (opcode >> 8)] >> 7) & 0x1;
 		V[0xF & (opcode >> 8)] <<= 1;
 	}
 	// skip on VX == VY
@@ -260,7 +261,7 @@ void chip8::emulateCycle() {
 	}
 	// set VX to rand & NN
 	else if (unsigned(opcode & 0xF000) == 0xC000) {
-		V[0xF & (opcode >> 8)] = (rand() % 256) & 0x00FF & opcode;
+		V[0xF & (opcode >> 8)] = (rand() % 0xFF) & opcode;
 	}
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
@@ -335,14 +336,14 @@ void chip8::emulateCycle() {
 	else if (unsigned(opcode & 0xF0FF) == 0xF055) {
 		int num = V[0xF & (opcode >> 8)];
 		for (int i = 0; i <= num; i++) {
-			memory[I + i] = V[i];
+			memory[(I + i) % 4096] = V[i];
 		}
 	}
 	// reg load
 	else if (unsigned(opcode & 0xF0FF) == 0xF065) {
 		int num = V[0xF & (opcode >> 8)];
 		for (int i = 0; i <= num; i++) {
-			V[i] = memory[I + i];
+			V[i] = memory[(I + i) % 4096];
 		}
 	}
 	else {
