@@ -123,7 +123,7 @@ void chip8::init(string fname) {
 
 void chip8::emulateCycle() {
 
-	hasDraw = false;
+	has_draw = false;
 
 	// fetch opcode
 	opcode = unsigned(memory[pc] << 8 | memory[pc + 1]);
@@ -267,7 +267,7 @@ void chip8::emulateCycle() {
 	// draw
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
 
-		hasDraw = true;
+		has_draw = true;
 
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
@@ -309,7 +309,7 @@ void chip8::emulateCycle() {
 	// wait key and store in VX
 	else if (unsigned(opcode & 0xF0FF) == 0xF00A) {
 
-		if (!keyPressed) {
+		if (!key_pressed) {
 			pc -= 2;
 		}
 	
@@ -358,14 +358,18 @@ void chip8::emulateCycle() {
 
 	// move timers
 	if (delay_timer > 0) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 		delay_timer--;
 	}
 	if (sound_timer > 0) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		sound_timer--;
+		is_buzz = true;
+	}
+	else {
+		is_buzz = false;
 	}
 
 	// default wait time
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 }

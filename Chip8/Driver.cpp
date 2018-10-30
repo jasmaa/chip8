@@ -1,9 +1,14 @@
 ﻿#include <iostream>
 #include <iomanip>
+#include <windows.h>
 #include <SDL.h>
 using namespace std;
 
 #include "chip8.h"
+
+#define BUZZ_PATH "buzz.wav"
+static Uint8 * audio_pos;
+static Uint32 audio_len;
 
 chip8 cpu;
 
@@ -18,6 +23,18 @@ SDL_Event e;
 
 bool quit = false;
 
+void buzz_callback(void *userdata, Uint8 *stream, int len) {
+
+	if (audio_len == 0)
+		return;
+
+	len = (len > audio_len ? audio_len : len);
+	SDL_MixAudio(stream, audio_pos, len, SDL_MIX_MAXVOLUME);
+
+	audio_pos += len;
+	audio_len -= len;
+}
+
 int main(int argc, char* args[]) {
 
 	if (argc != 2) {
@@ -25,13 +42,34 @@ int main(int argc, char* args[]) {
 	}
 
 	// init
-	SDL_Init(SDL_INIT_VIDEO);
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+		return 1;
+	}
 	window = SDL_CreateWindow("Chip 8 Emulator - v0.1.0", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
 
 	Uint32 * pixels = new Uint32[width * height];
+
+	// sound init
+	static Uint32 wav_length;
+	static Uint8 * wav_buffer;
+	static SDL_AudioSpec wav_spec;
+	if (SDL_LoadWAV(BUZZ_PATH, &wav_spec, &wav_buffer, &wav_length) == NULL) {
+		cout << "Cannot load file";
+		return 1;
+	}
+	// set call back
+	wav_spec.callback = buzz_callback;
+	wav_spec.userdata = NULL;
+	audio_pos = wav_buffer;
+	audio_len = wav_length;
+	// open audio
+	if (SDL_OpenAudio(&wav_spec, NULL) < 0) {
+		cout << "Could not open audio";
+		return 1;
+	}
 
 	// load rom and init cpu
 	cpu.init(args[1]);
@@ -40,7 +78,7 @@ int main(int argc, char* args[]) {
 	while (!quit) {
 
 		// key detection
-		cpu.keyPressed = false;
+		cpu.key_pressed = false;
 		SDL_PollEvent(&e);
 		switch (e.type) {
 			case SDL_QUIT:
@@ -101,7 +139,7 @@ int main(int argc, char* args[]) {
 				break;
 
 			case SDL_KEYDOWN:
-				cpu.keyPressed = true;
+				cpu.key_pressed = true;
 				switch (e.key.keysym.sym) {
 					case SDLK_1:
 						cpu.key[0x1] = 1;
@@ -157,8 +195,18 @@ int main(int argc, char* args[]) {
 
 		cpu.emulateCycle();
 
+		if (cpu.is_buzz) {
+			SDL_PauseAudio(0);
+		}
+		else {
+			// reset
+			SDL_PauseAudio(1);
+			audio_pos = wav_buffer;
+			audio_len = wav_length;
+		}
+
 		// render if draw called
-		if (cpu.hasDraw) {
+		if (cpu.has_draw) {
 			// copy pixels
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
@@ -186,6 +234,8 @@ int main(int argc, char* args[]) {
 	window = NULL;
 	SDL_DestroyRenderer(renderer);
 	renderer = NULL;
+	SDL_CloseAudio();
+	SDL_FreeWAV(wav_buffer);
 	SDL_Quit();
 
 	return 0;

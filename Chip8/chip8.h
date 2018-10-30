@@ -17,8 +17,9 @@ class chip8 {
 public:
 	unsigned char key[16];				// hex keypad
 	unsigned char gfx[32][64];			// graphics array
-	bool hasDraw;
-	bool keyPressed;
+	bool has_draw;
+	bool key_pressed;
+	bool is_buzz;
 
 	void init(string fname);
 	void emulateCycle();
