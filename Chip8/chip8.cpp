@@ -6,7 +6,7 @@ using namespace std;
 
 #include "chip8.h"
 
-void chip8::init(string fname) {
+void Chip8::init(string fname) {
 
 	// read file into memory
 	fstream filestr(fname, fstream::in | fstream::binary);
@@ -121,7 +121,7 @@ void chip8::init(string fname) {
 
 }
 
-void chip8::emulateCycle() {
+void Chip8::emulateCycle() {
 
 	has_draw = false;
 
@@ -268,6 +268,7 @@ void chip8::emulateCycle() {
 	else if (unsigned(opcode & 0xF000) == 0xD000) {
 
 		has_draw = true;
+		V[0xF] = 0;
 
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
@@ -276,11 +277,8 @@ void chip8::emulateCycle() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < 8; j++) {
 				// set VF on set to unset
-				if (gfx[row + i][col + j] == 1 && (memory[mem] >> (7-j)) & 0x1 == 0) {
+				if (unsigned(gfx[row + i][col + j]) == 0x1 && unsigned((memory[mem] >> (7-j)) & 0x1) == 0x0) {
 					V[0xF] = 1;
-				}
-				else {
-					V[0xF] = 0;
 				}
 
 				if (row + i < 32 && col + j < 64) {
@@ -364,10 +362,10 @@ void chip8::emulateCycle() {
 	if (sound_timer > 0) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		sound_timer--;
-		is_buzz = true;
+		has_buzz = true;
 	}
 	else {
-		is_buzz = false;
+		has_buzz = false;
 	}
 
 	// default wait time

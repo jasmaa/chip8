@@ -2,7 +2,7 @@
 #include <stack>
 using namespace std;
 
-class chip8 {
+class Chip8 {
 
 	unsigned char memory[4096];
 	unsigned short opcode;				// opcode
@@ -19,7 +19,7 @@ public:
 	unsigned char gfx[32][64];			// graphics array
 	bool has_draw;
 	bool key_pressed;
-	bool is_buzz;
+	bool has_buzz;
 
 	void init(string fname);
 	void emulateCycle();

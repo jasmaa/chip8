@@ -10,7 +10,7 @@ using namespace std;
 static Uint8 * audio_pos;
 static Uint32 audio_len;
 
-chip8 cpu;
+Chip8 cpu;
 
 int width = 512;
 int height = 256;
@@ -195,7 +195,7 @@ int main(int argc, char* args[]) {
 
 		cpu.emulateCycle();
 
-		if (cpu.is_buzz) {
+		if (cpu.has_buzz) {
 			SDL_PauseAudio(0);
 		}
 		else {

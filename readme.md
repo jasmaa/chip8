@@ -1,6 +1,6 @@
-# Chip8 Emulator
+# Chip-8 Emulator
 
-Another WIP Chip 8 emulator project for learning about memory
+Another WIP Chip-8 emulator project for learning about memory
 
 ## Acknowledgements
   - Roms for testing retrieved from [Zophar's Domain](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html)
