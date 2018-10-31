@@ -14,7 +14,7 @@ Chip8 cpu;
 
 int width = 512;
 int height = 256;
-int ratio = width / 64;
+int ratio = width / 128;
 
 SDL_Window * window;
 SDL_Renderer * renderer;
@@ -207,6 +207,9 @@ int main(int argc, char* args[]) {
 
 		// render if draw called
 		if (cpu.has_draw) {
+
+			ratio = cpu.extended_enabled ? width / 128 : width / 64;
+
 			// copy pixels
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
