@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <windows.h>
 #include <SDL.h>
-#include <iostream>
 using namespace std;
 
 #include "chip8.h"
@@ -23,30 +22,6 @@ SDL_Texture * texture;
 SDL_Event e;
 
 bool quit = false;
-
-void printState() {
-	// print state
-	cout << hex;
-	cout << "pc after exec: " << cpu.pc << "\n";
-	cout << "opcode: " << cpu.opcode << "\n";
-	cout << "V: ";
-	for (int i = 0; i < 16; i++) {
-		cout << unsigned(cpu.V[i]) << " ";
-	}
-	cout << "\n";
-	cout << "mem: ";
-	for (int i = 0; i < 16; i++) {
-		cout << unsigned(cpu.memory[0x200 + i]) << " ";
-	}
-	cout << "\n";
-	cout << "I: " << cpu.I << "\n";
-	cout << "delay: " << unsigned(cpu.delay_timer) << "\n";
-	cout << "sound: " << unsigned(cpu.sound_timer) << "\n";
-	cout << "---\n";
-
-	//int n;
-	//cin >> n;
-}
 
 void buzz_callback(void *userdata, Uint8 *stream, int len) {
 
@@ -219,7 +194,6 @@ int main(int argc, char* args[]) {
 		}
 
 		cpu.emulateCycle();
-		//printState();
 
 		if (cpu.has_buzz) {
 			SDL_PauseAudio(0);

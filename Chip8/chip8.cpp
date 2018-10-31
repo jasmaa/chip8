@@ -278,7 +278,7 @@ void Chip8::emulateCycle() {
 			for (int j = 0; j < 8; j++) {
 
 				// set VF on set to unset
-				if (unsigned(gfx[(row + i) % 32][(col + j) % 64]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x0) {
+				if (unsigned(gfx[(row + i) % 32][(col + j) % 64]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x1) {
 					V[0xF] = 1;
 				}
 				gfx[(row + i) % 32][(col + j) % 64] ^= (memory[mem] >> (7 - j)) & 0x1;
@@ -375,5 +375,5 @@ void Chip8::emulateCycle() {
 	}
 
 	// default wait time
-	std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+	std::this_thread::sleep_for(std::chrono::microseconds(5));
 }
