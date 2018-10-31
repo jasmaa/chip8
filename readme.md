@@ -1,6 +1,6 @@
-# Chip-8 Emulator
+# CHIP-8 Emulator
 
-Another Chip-8 emulator project for learning about memory
+Another CHIP-8 emulator project for learning about memory. Runs both CHIP-8 and SCHIP roms.
 
 ## How to Run
   - Download and unzip latest release

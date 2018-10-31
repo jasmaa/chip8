@@ -8,10 +8,28 @@ using namespace std;
 
 void Chip8::init(string fname) {
 
-	// read file into memory
-	fstream filestr(fname, fstream::in | fstream::binary);
+	// read fonts
+	fstream filestr_font("fontchip8", fstream::in | fstream::binary);
 	unsigned char n;
 	int i = 0;
+	while (!filestr_font.eof()) {
+		n = filestr_font.get();
+		memory[i] = n;
+		i++;
+	}
+	filestr_font.close();
+
+	fstream filestr_font48("fontsuperchip48", fstream::in | fstream::binary);
+	while (!filestr_font48.eof()) {
+		n = filestr_font48.get();
+		memory[i] = n;
+		i++;
+	}
+	filestr_font48.close();
+
+	// read file into memory
+	fstream filestr(fname, fstream::in | fstream::binary);
+	i = 0;
 	while (!filestr.eof()) {
 		n = filestr.get();
 		memory[i + 512] = n;
@@ -20,104 +38,6 @@ void Chip8::init(string fname) {
 	filestr.close();
 	
 	pc = 0x200;
-
-	// set font for characters starting at 00
-	// 0
-	memory[0] = 0xF0;
-	memory[1] = 0x90;
-	memory[2] = 0x90;
-	memory[3] = 0x90;
-	memory[4] = 0xF0;
-	// 1
-	memory[5] = 0x20;
-	memory[6] = 0x60;
-	memory[7] = 0x20;
-	memory[8] = 0x20;
-	memory[9] = 0x70;
-	// 2
-	memory[10] = 0xF0;
-	memory[11] = 0x10;
-	memory[12] = 0xF0;
-	memory[13] = 0x80;
-	memory[14] = 0xF0;
-	// 3
-	memory[15] = 0xF0;
-	memory[16] = 0x10;
-	memory[17] = 0xF0;
-	memory[18] = 0x10;
-	memory[19] = 0xF0;
-	// 4
-	memory[20] = 0x90;
-	memory[21] = 0x90;
-	memory[22] = 0xF0;
-	memory[23] = 0x10;
-	memory[24] = 0x10;
-	// 5
-	memory[25] = 0xF0;
-	memory[26] = 0x80;
-	memory[27] = 0xF0;
-	memory[28] = 0x90;
-	memory[29] = 0xF0;
-	// 6
-	memory[30] = 0xF0;
-	memory[31] = 0x80;
-	memory[32] = 0xF0;
-	memory[33] = 0x90;
-	memory[34] = 0xF0;
-	// 7
-	memory[35] = 0xF0;
-	memory[36] = 0x10;
-	memory[37] = 0x20;
-	memory[38] = 0x40;
-	memory[39] = 0x40;
-	// 8
-	memory[40] = 0xF0;
-	memory[41] = 0x90;
-	memory[42] = 0xF0;
-	memory[43] = 0x90;
-	memory[44] = 0xF0;
-	// 9
-	memory[45] = 0xF0;
-	memory[46] = 0x90;
-	memory[47] = 0xF0;
-	memory[48] = 0x10;
-	memory[49] = 0xF0;
-	// A
-	memory[50] = 0xF0;
-	memory[51] = 0x90;
-	memory[52] = 0xF0;
-	memory[53] = 0x90;
-	memory[54] = 0x90;
-	// B
-	memory[55] = 0xE0;
-	memory[56] = 0x90;
-	memory[57] = 0xE0;
-	memory[58] = 0x90;
-	memory[59] = 0xE0;
-	// C
-	memory[60] = 0xF0;
-	memory[61] = 0x80;
-	memory[62] = 0x80;
-	memory[63] = 0x80;
-	memory[64] = 0xF0;
-	// D
-	memory[65] = 0xE0;
-	memory[66] = 0x90;
-	memory[67] = 0x90;
-	memory[68] = 0x90;
-	memory[69] = 0xE0;
-	// E
-	memory[70] = 0xF0;
-	memory[71] = 0x80;
-	memory[72] = 0xF0;
-	memory[73] = 0x80;
-	memory[74] = 0xF0;
-	// F
-	memory[75] = 0xF0;
-	memory[76] = 0x80;
-	memory[77] = 0xF0;
-	memory[78] = 0x80;
-	memory[79] = 0x80;
 
 }
 
@@ -129,10 +49,26 @@ void Chip8::emulateCycle() {
 	opcode = unsigned(memory[pc] << 8 | memory[pc + 1]);
 
 	// decode and execute opcode
-	if (opcode == 0x00E0) {
-		// clear screen
-		for (int i = 0; i < 32; i++) {
-			for (int j = 0; j < 64; j++) {
+
+	// scroll screen down
+	if (unsigned(opcode & 0xFFF0) == 0x00C0) {
+		int n = unsigned(opcode & 0xF);
+		for (int i = 0; i < n; i++) {
+			// move screen down
+			for (int j = 63; j > 0; j--) {
+				for (int k = 0; k < 128; k++) {
+					gfx[j][k] = gfx[j - 1][k];
+				}
+			}
+			for (int k = 0; k < 128; k++) {
+				gfx[0][k] = 0;
+			}
+		}
+	}
+	// clear screen
+	else if (opcode == 0x00E0) {
+		for (int i = 0; i < 64; i++) {
+			for (int j = 0; j < 128; j++) {
 				gfx[i][j] = 0;
 			}
 		}
@@ -142,9 +78,41 @@ void Chip8::emulateCycle() {
 		pc = call_stack.top();
 		call_stack.pop();
 	}
-	// rca
-	else if (unsigned(opcode & 0xF000) == 0x0000) {
-		// call rca
+	// scroll screen right 4
+	else if (opcode == 0x00FB) {
+		for (int i = 0; i < 4; i++) {
+			// move screen right
+			for (int j = 127; j > 0; j--) {
+				for (int k = 0; k < 64; k++) {
+					gfx[k][j] = gfx[k][j - 1];
+				}
+			}
+			for (int j = 0; j < 64; j++) {
+				gfx[j][0] = 0;
+			}
+		}
+	}
+	// scroll screen left 4
+	else if (opcode == 0x00FC) {
+		for (int i = 0; i < 4; i++) {
+			// move screen right
+			for (int j = 0; j < 127; j++) {
+				for (int k = 0; k < 64; k++) {
+					gfx[k][j] = gfx[k][j + 1];
+				}
+			}
+			for (int j = 0; j < 64; j++) {
+				gfx[j][127] = 0;
+			}
+		}
+	}
+	// disable extended
+	else if (opcode == 0x00FE) {
+		extended_enabled = false;
+	}
+	// enable extended
+	else if (opcode == 0x00FF) {
+		extended_enabled = true;
 	}
 	// jump to NNN
 	else if (unsigned(opcode & 0xF000) == 0x1000) {
@@ -270,21 +238,46 @@ void Chip8::emulateCycle() {
 		has_draw = true;
 		V[0xF] = 0;
 
+		int scrn_width = extended_enabled ? 128 : 64;
+		int scrn_height = extended_enabled ? 64 : 32;
+
 		int row = V[0xF & (opcode >> 4)];
 		int col = V[0xF & (opcode >> 8)];
 		int height = 0xF & opcode;
+		int width = 8;
 		int mem = I;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < 8; j++) {
 
-				// set VF on set to unset
-				if (unsigned(gfx[(row + i) % 32][(col + j) % 64]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x1) {
-					V[0xF] = 1;
+		// extended drawing
+		if (height == 0) {
+			for (int i = 0; i < 16; i++) {
+				for (int j = 0; j < 16; j++) {
+
+					short data = unsigned((memory[mem] << 8) | memory[mem + 1]);
+
+					// set VF on set to unset
+					if (unsigned(gfx[(row + i) % scrn_height][(col + j) % scrn_width]) == 0x1 && unsigned((data >> (15 - j)) & 0x1) == 0x1) {
+						V[0xF] = 1;
+					}
+					gfx[(row + i) % scrn_height][(col + j) % scrn_width] ^= (data >> (15 - j)) & 0x1;
+
 				}
-				gfx[(row + i) % 32][(col + j) % 64] ^= (memory[mem] >> (7 - j)) & 0x1;
-
+				mem += 2;
 			}
-			mem++;
+		}
+		// normal drawing
+		else {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < 8; j++) {
+
+					// set VF on set to unset
+					if (unsigned(gfx[(row + i) % scrn_height][(col + j) % scrn_width]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x1) {
+						V[0xF] = 1;
+					}
+					gfx[(row + i) % scrn_height][(col + j) % scrn_width] ^= (memory[mem] >> (7 - j)) & 0x1;
+
+				}
+				mem++;
+			}
 		}
 	}
 	// skip if key is in VX
@@ -333,6 +326,10 @@ void Chip8::emulateCycle() {
 	// I = sprite address in VX
 	else if (unsigned(opcode & 0xF0FF) == 0xF029) {
 		I = V[0xF & (opcode >> 8)] * 5;
+	}
+	// I to font for superchip
+	else if (unsigned(opcode & 0xF0FF) == 0xF030) {
+		I = V[0xF & (opcode >> 8)] * 10 + 0x51;
 	}
 	// bcd
 	else if (unsigned(opcode & 0xF0FF) == 0xF033) {

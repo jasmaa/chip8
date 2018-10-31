@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <iomanip>
-#include <windows.h>
 #include <SDL.h>
 using namespace std;
 
@@ -13,8 +12,8 @@ static Uint32 audio_len;
 Chip8 cpu;
 
 int width = 512;
-int height = 256;
-int ratio = width / 64;
+int height = width / 2;
+int ratio = width / 128;
 
 SDL_Window * window;
 SDL_Renderer * renderer;
@@ -45,7 +44,7 @@ int main(int argc, char* args[]) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		return 1;
 	}
-	window = SDL_CreateWindow("Chip 8 Emulator - v0.1.0", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+	window = SDL_CreateWindow("Chip 8 Emulator - v0.1.1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
@@ -207,6 +206,9 @@ int main(int argc, char* args[]) {
 
 		// render if draw called
 		if (cpu.has_draw) {
+
+			ratio = cpu.extended_enabled ? width / 128 : width / 64;
+
 			// copy pixels
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
