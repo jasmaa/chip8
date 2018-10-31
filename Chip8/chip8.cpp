@@ -67,8 +67,8 @@ void Chip8::emulateCycle() {
 	}
 	// clear screen
 	else if (opcode == 0x00E0) {
-		for (int i = 0; i < 32; i++) {
-			for (int j = 0; j < 64; j++) {
+		for (int i = 0; i < 64; i++) {
+			for (int j = 0; j < 128; j++) {
 				gfx[i][j] = 0;
 			}
 		}
@@ -247,23 +247,37 @@ void Chip8::emulateCycle() {
 		int width = 8;
 		int mem = I;
 
-		// superchip
+		// extended drawing
 		if (height == 0) {
-			height = 16;
-			width = 16;
-		}
+			for (int i = 0; i < 16; i++) {
+				for (int j = 0; j < 16; j++) {
 
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
+					short data = unsigned((memory[mem] << 8) | memory[mem + 1]);
 
-				// set VF on set to unset
-				if (unsigned(gfx[(row + i) % scrn_height][(col + j) % scrn_width]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x1) {
-					V[0xF] = 1;
+					// set VF on set to unset
+					if (unsigned(gfx[(row + i) % scrn_height][(col + j) % scrn_width]) == 0x1 && unsigned((data >> (15 - j)) & 0x1) == 0x1) {
+						V[0xF] = 1;
+					}
+					gfx[(row + i) % scrn_height][(col + j) % scrn_width] ^= (data >> (15 - j)) & 0x1;
+
 				}
-				gfx[(row + i) % scrn_height][(col + j) % scrn_width] ^= (memory[mem] >> (7 - j)) & 0x1;
-
+				mem += 2;
 			}
-			mem++;
+		}
+		// normal drawing
+		else {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < 8; j++) {
+
+					// set VF on set to unset
+					if (unsigned(gfx[(row + i) % scrn_height][(col + j) % scrn_width]) == 0x1 && unsigned((memory[mem] >> (7 - j)) & 0x1) == 0x1) {
+						V[0xF] = 1;
+					}
+					gfx[(row + i) % scrn_height][(col + j) % scrn_width] ^= (memory[mem] >> (7 - j)) & 0x1;
+
+				}
+				mem++;
+			}
 		}
 	}
 	// skip if key is in VX
