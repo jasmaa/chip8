@@ -1,6 +1,10 @@
 # Chip-8 Emulator
 
-Another WIP Chip-8 emulator project for learning about memory
+Another Chip-8 emulator project for learning about memory
+
+## How to Run
+  - Download and unzip latest release
+  - `Chip8.exe <ROM PATH>`
 
 ## Acknowledgements
   - Roms for testing retrieved from [Zophar's Domain](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html)

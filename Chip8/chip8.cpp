@@ -375,5 +375,5 @@ void Chip8::emulateCycle() {
 	}
 
 	// default wait time
-	std::this_thread::sleep_for(std::chrono::microseconds(5));
+	std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 }
